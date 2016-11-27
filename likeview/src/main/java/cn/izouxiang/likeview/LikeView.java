@@ -97,6 +97,7 @@ public class LikeView extends View {
             distance = dp2px(3);
             graphStrokeWidth = dp2px(2);
             textStrokeWidth = dp2px(2);
+            graphTextHeightRatio = 1.3f;
         }else {
             TypedArray ta = getContext().obtainStyledAttributes(attrs, R.styleable.LikeView);
             try {
@@ -110,6 +111,7 @@ public class LikeView extends View {
                 distance = ta.getDimensionPixelSize(R.styleable.LikeView_distance,dp2px(3));
                 graphStrokeWidth = ta.getDimensionPixelSize(R.styleable.LikeView_graphStrokeWidth,dp2px(2));
                 textStrokeWidth = ta.getDimensionPixelSize(R.styleable.LikeView_textStrokeWidth,dp2px(2));
+                graphTextHeightRatio = ta.getFloat(R.styleable.LikeView_graphTextHeightRatio,1.3f);
             }finally {
                 ta.recycle();
             }
@@ -125,7 +127,6 @@ public class LikeView extends View {
         animatePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         animatePaint.setColor(animateColor);
         animatePaint.setStyle(Paint.Style.FILL_AND_STROKE);
-        graphTextHeightRatio = 1.3f;
         measureTextHeightAndBaseLineHeight();
         measureDefWidthAndDefHeight();
         this.setOnClickListener(new OnClickListener() {
