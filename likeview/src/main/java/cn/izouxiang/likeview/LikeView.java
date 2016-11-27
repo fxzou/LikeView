@@ -258,8 +258,13 @@ public class LikeView extends View {
      * 测量文本宽度
      */
     private void measureTextWidth(){
-        textWidth = maxTextWidth(oldNumStr, newNumStr);
         preNumWidth = textPaint.measureText(preNum);
+        float oldTextWidth = textWidth;
+        textWidth =  maxTextWidth(oldNumStr, newNumStr);
+        if(oldTextWidth < textWidth){
+            measureDefWidthAndDefHeight();
+            requestLayout();
+        }
     }
     /**
      * 获取最大的文本宽度
