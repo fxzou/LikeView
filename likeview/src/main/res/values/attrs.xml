@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="LikeView">
+        <attr name="number" format="integer"/>
+        <attr name="textColor" format="color"/>
+        <attr name="graphColor" format="color"/>
+        <attr name="animateColor" format="color"/>
+        <attr name="textSize" format="dimension"/>
+        <attr name="animateDuration" format="integer"/>
+        <attr name="distance" format="dimension"/>
+        <attr name="graphTextHeightRatio" format="float"/>
+        <attr name="graphStrokeWidth" format="dimension"/>
+        <attr name="textStrokeWidth" format="dimension"/>
+        <attr name="isActivated" format="boolean"/>
+    </declare-styleable>
+</resources>
