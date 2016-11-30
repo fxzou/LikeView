@@ -70,6 +70,8 @@ public class LikeView extends View {
     private int graphStrokeWidth;
     private int textStrokeWidth;
     private Callback callback = new SimpleCallback();
+    private GraphAdapter graphAdapter = new HeartGraphAdapter();
+    private Path graphPath;
 
     public LikeView(Context context) {
         super(context);
@@ -87,7 +89,7 @@ public class LikeView extends View {
     }
 
     private void init(AttributeSet attrs) {
-        if(null == attrs) {
+        if (null == attrs) {
             number = 0;
             graphColor = textColor = Color.parseColor("#888888");
             animateColor = Color.parseColor("#EE0000");
@@ -98,21 +100,21 @@ public class LikeView extends View {
             graphStrokeWidth = dp2px(2);
             textStrokeWidth = dp2px(2);
             graphTextHeightRatio = 1.3f;
-        }else {
+        } else {
             TypedArray ta = getContext().obtainStyledAttributes(attrs, R.styleable.LikeView);
             try {
-                number = ta.getInt(R.styleable.LikeView_number,0);
-                graphColor = ta.getColor(R.styleable.LikeView_graphColor,Color.parseColor("#888888"));
-                textColor = ta.getColor(R.styleable.LikeView_textColor,Color.parseColor("#888888"));
-                animateColor = ta.getColor(R.styleable.LikeView_animateColor,Color.parseColor("#EE0000"));
-                textSize = ta.getDimensionPixelSize(R.styleable.LikeView_textSize,sp2px(16));
-                isActivated = ta.getBoolean(R.styleable.LikeView_isActivated,false);
-                animateDuration = ta.getInt(R.styleable.LikeView_animateDuration,500);
-                distance = ta.getDimensionPixelSize(R.styleable.LikeView_distance,dp2px(3));
-                graphStrokeWidth = ta.getDimensionPixelSize(R.styleable.LikeView_graphStrokeWidth,dp2px(2));
-                textStrokeWidth = ta.getDimensionPixelSize(R.styleable.LikeView_textStrokeWidth,dp2px(2));
-                graphTextHeightRatio = ta.getFloat(R.styleable.LikeView_graphTextHeightRatio,1.3f);
-            }finally {
+                number = ta.getInt(R.styleable.LikeView_number, 0);
+                graphColor = ta.getColor(R.styleable.LikeView_graphColor, Color.parseColor("#888888"));
+                textColor = ta.getColor(R.styleable.LikeView_textColor, Color.parseColor("#888888"));
+                animateColor = ta.getColor(R.styleable.LikeView_animateColor, Color.parseColor("#EE0000"));
+                textSize = ta.getDimensionPixelSize(R.styleable.LikeView_textSize, sp2px(16));
+                isActivated = ta.getBoolean(R.styleable.LikeView_isActivated, false);
+                animateDuration = ta.getInt(R.styleable.LikeView_animateDuration, 500);
+                distance = ta.getDimensionPixelSize(R.styleable.LikeView_distance, dp2px(3));
+                graphStrokeWidth = ta.getDimensionPixelSize(R.styleable.LikeView_graphStrokeWidth, dp2px(2));
+                textStrokeWidth = ta.getDimensionPixelSize(R.styleable.LikeView_textStrokeWidth, dp2px(2));
+                graphTextHeightRatio = ta.getFloat(R.styleable.LikeView_graphTextHeightRatio, 1.3f);
+            } finally {
                 ta.recycle();
             }
         }
@@ -132,32 +134,25 @@ public class LikeView extends View {
         this.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(!callback.onClick(LikeView.this)) {
+                if (!callback.onClick(LikeView.this)) {
                     trigger();
                 }
             }
         });
     }
 
-    public void setNumAnimateScale(float numAnimateScale) {
-        this.numAnimateScale = numAnimateScale;
-        postInvalidate();
-    }
 
-    public void setGraphAnimateScale(float graphAnimateScale) {
-        this.graphAnimateScale = graphAnimateScale;
-        postInvalidate();
-    }
 
     /**
      * 修改数值
-     * @param number 新值
+     *
+     * @param number  新值
      * @param animate 是否启用动画
      */
-    public void setNumber(long number,boolean animate) {
-        if(animate){
+    public void setNumber(long number, boolean animate) {
+        if (animate) {
             add(number - this.number);
-        }else {
+        } else {
             this.number = number;
             postInvalidate();
         }
@@ -199,15 +194,32 @@ public class LikeView extends View {
     /**
      * 切换当前状态
      */
-    public void trigger(){
-        if(isActivated){
+    public void trigger() {
+        if (isActivated) {
             add(-1);
             deactivate();
-        }else {
+        } else {
             add(1);
             activate();
         }
     }
+
+    /**
+     * 激活并且给数值加1
+     */
+    public void activateAndPlusOne(){
+        add(1);
+        activate();
+    }
+
+    /**
+     * 取消激活并且给数组减1
+     */
+    public void deactivateAndTallyDown(){
+        add(-1);
+        deactivate();
+    }
+
     /**
      * 测量文本高度和基线高度
      */
@@ -257,15 +269,16 @@ public class LikeView extends View {
     /**
      * 测量文本宽度
      */
-    private void measureTextWidth(){
+    private void measureTextWidth() {
         preNumWidth = textPaint.measureText(preNum);
         float oldTextWidth = textWidth;
-        textWidth =  maxTextWidth(oldNumStr, newNumStr);
-        if(oldTextWidth < textWidth){
+        textWidth = maxTextWidth(oldNumStr, newNumStr);
+        if (oldTextWidth < textWidth) {
             measureDefWidthAndDefHeight();
             requestLayout();
         }
     }
+
     /**
      * 获取最大的文本宽度
      */
@@ -295,7 +308,11 @@ public class LikeView extends View {
         numAnimator.start();
     }
 
-
+    /**
+     * 图形动画
+     * @param start 开始值
+     * @param end 结束值
+     */
     private void graphAnimate(float start, float end) {
         if (graphAnimator != null && graphAnimator.isRunning()) {
             graphAnimator.cancel();
@@ -317,6 +334,12 @@ public class LikeView extends View {
         setMeasuredDimension(measureMeasureSpec(widthMeasureSpec, defWidth), measureMeasureSpec(heightMeasureSpec, defHeight));
     }
 
+    /**
+     * 测量View的宽高
+     * @param measureSpec MeasureSpec实例
+     * @param defaultVal 默认值,当mode为UNSPECIFIED和AT_MOST时使用默认值
+     * @return 测量后的宽高
+     */
     private int measureMeasureSpec(int measureSpec, int defaultVal) {
         int result = 0;
         int mode = MeasureSpec.getMode(measureSpec);
@@ -336,24 +359,26 @@ public class LikeView extends View {
     @Override
     protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
         super.onLayout(changed, left, top, right, bottom);
-        int width = getWidth();
-        int height = getHeight();
         graphStartX = getPaddingLeft();
         graphStartY = getPaddingTop();
         graphLength = defHeight - getPaddingTop() - getPaddingBottom();
+        graphPath = graphAdapter.getGraphPath(this, (int) graphLength);
         textStartX = graphStartX + graphLength + distance;
         textStartY = graphStartY + textHeight * (graphTextHeightRatio - 1) / 2;
     }
 
     @Override
     protected void onDraw(Canvas canvas) {
-        drawHeart(canvas);
+        drawGraph(canvas);
         drawNumber(canvas);
     }
 
+    /**
+     * 画数字
+     */
     private void drawNumber(Canvas canvas) {
         canvas.save();
-        canvas.translate(textStartX,textStartY);
+        canvas.translate(textStartX, textStartY);
         if (!isNumAnimateRunning) {
             canvas.drawText(String.valueOf(number), 0, textBaseLineHeight, textPaint);
         } else {
@@ -366,21 +391,37 @@ public class LikeView extends View {
         canvas.restore();
     }
 
-    private void drawHeart(Canvas canvas) {
+    /**
+     * 画图形
+     */
+    private void drawGraph(Canvas canvas) {
         canvas.save();
-        canvas.translate(graphStartX,graphStartY);
-        Path heartPath = PathUtils.getHeartPath((int) graphLength);
-        canvas.clipPath(heartPath);
+        canvas.translate(graphStartX, graphStartY);
+        canvas.clipPath(graphPath);
         float radial = (float) (graphLength * Math.sqrt(2) / 2f);
-        if (!isGraphAnimateRunning) {
-            canvas.drawPath(heartPath, graphPaint);
+
+        if (!isGraphAnimateRunning) {//如果不是动画中,就直接绘画
+            canvas.drawPath(graphPath, graphPaint);
             if (isActivated) {
                 canvas.drawCircle(graphLength / 2, graphLength / 2, radial, animatePaint);
             }
-        } else {
-            canvas.drawPath(PathUtils.getHeartPath((int) graphLength, 1 - graphAnimateScale), graphPaint);
+        } else { //是动画中就要按比例绘画
+            drawGraphPathByScale(canvas, 1 - graphAnimateScale);
             canvas.drawCircle(graphLength / 2, graphLength / 2, radial * graphAnimateScale, animatePaint);
         }
+        canvas.restore();
+    }
+
+    /**
+     * 将图形缩放绘画
+     *
+     * @param canvas 画笔
+     * @param scale  比例
+     */
+    private void drawGraphPathByScale(Canvas canvas, float scale) {
+        canvas.save();
+        canvas.scale(scale, scale, graphLength / 2, graphLength / 2);
+        canvas.drawPath(graphPath, graphPaint);
         canvas.restore();
     }
 
@@ -487,12 +528,46 @@ public class LikeView extends View {
         postInvalidate();
     }
 
+    /**
+     * 动画
+     */
+    public void setNumAnimateScale(float numAnimateScale) {
+        this.numAnimateScale = numAnimateScale;
+        postInvalidate();
+    }
+
+    public void setGraphAnimateScale(float graphAnimateScale) {
+        this.graphAnimateScale = graphAnimateScale;
+        postInvalidate();
+    }
+    /**
+     * 事件监听接口
+     */
     public interface Callback {
+        /**
+         * 点击事件监听
+         * @param view 当前View
+         * @return 返回true则代表不使用默认的点击事件
+         */
         boolean onClick(LikeView view);
+
+        /**
+         * 变为激活状态
+         * @param view 当前View
+         */
         void activate(LikeView view);
+
+        /**
+         * 变为不激活状态
+         * @param view 当前View
+         */
         void deactivate(LikeView view);
     }
-    public static class SimpleCallback implements Callback{
+
+    /**
+     * 事件监听的默认实现
+     */
+    public static class SimpleCallback implements Callback {
 
         @Override
         public boolean onClick(LikeView view) {
@@ -507,6 +582,30 @@ public class LikeView extends View {
         @Override
         public void deactivate(LikeView view) {
 
+        }
+    }
+
+    /**
+     * 获取图形Path接口
+     */
+    public interface GraphAdapter {
+        /**
+         * 获取图形的Path
+         * @param view 当前View
+         * @param length 可绘制图形区域正方形的边长
+         * @return 带有图形的Path
+         */
+        Path getGraphPath(LikeView view, int length);
+    }
+
+    /**
+     * 桃心图形类
+     */
+    public static class HeartGraphAdapter implements GraphAdapter {
+
+        @Override
+        public Path getGraphPath(LikeView view, int length) {
+            return PathUtils.getHeartPath(length);
         }
     }
 }

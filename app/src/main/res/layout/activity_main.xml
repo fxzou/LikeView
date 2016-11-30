@@ -19,6 +19,7 @@
         app:animateColor="#c75050"
         app:number="98"
         app:isActivated="true"
+        app:graphStrokeWidth="3dp"
         />
     <LinearLayout
         android:layout_width="match_parent"
