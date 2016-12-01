@@ -12,5 +12,6 @@
         <attr name="graphStrokeWidth" format="dimension"/>
         <attr name="textStrokeWidth" format="dimension"/>
         <attr name="isActivated" format="boolean"/>
+        <attr name="autoMeasureMaxWidth" format="boolean"/>
     </declare-styleable>
 </resources>

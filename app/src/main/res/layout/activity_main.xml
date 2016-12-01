@@ -6,39 +6,73 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingBottom="@dimen/activity_vertical_margin"
-    android:paddingLeft="@dimen/activity_horizontal_margin"
-    android:paddingRight="@dimen/activity_horizontal_margin"
-    android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context="cn.izouxiang.likeviewdemo.MainActivity">
+    tools:context="cn.izouxiang.likeviewdemo.MainActivity"
+    android:background="#f5eeee"
+    >
 
-    <cn.izouxiang.likeview.LikeView
-        android:id="@+id/likeview"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:animateColor="#c75050"
-        app:number="98"
-        app:isActivated="true"
-        app:graphStrokeWidth="3dp"
-        />
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
+        android:orientation="vertical"
+        android:padding="16dp"
+        android:background="#FFFFFF"
         >
-        <Button
-            android:id="@+id/btn_add"
+
+        <LinearLayout
             android:layout_width="wrap_content"
+            android:layout_height="50dp"
+            android:orientation="horizontal"
+            >
+            <ImageView
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:src="@mipmap/ic_launcher"
+                />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_marginLeft="20dp"
+                android:text="小明"
+                />
+        </LinearLayout>
+        <TextView
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="+1"
-            android:onClick="onClick"
+            android:text="今天贼嗨!今天贼嗨!今天贼嗨!今天贼嗨!今天贼嗨!今天贼嗨!今天贼嗨!今天贼嗨!今天贼嗨!今天贼嗨!今天贼嗨!今天贼嗨!今天贼嗨!"
+            android:layout_marginTop="50dp"
+            android:layout_marginBottom="50dp"
             />
-        <Button
-            android:id="@+id/btn_subtract"
-            android:layout_width="wrap_content"
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#cccccc"
+            />
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="-1"
-            android:onClick="onClick"
-            />
+            android:orientation="horizontal"
+            >
+            <cn.izouxiang.likeview.LikeView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_marginRight="100dp"
+                app:number="99"
+                app:graphStrokeWidth="3dp"
+                app:animateColor="#ca5f5f"
+                app:textSize="12sp"
+                app:isActivated="false"
+                app:animateDuration="300"
+                app:autoMeasureMaxWidth="true"
+                />
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="#00000000"
+                android:text="评论"
+                android:layout_gravity="center_vertical"
+                />
+        </LinearLayout>
     </LinearLayout>
 </RelativeLayout>
