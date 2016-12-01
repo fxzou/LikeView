@@ -22,7 +22,7 @@ import cn.izouxiang.likeview.util.PathUtils;
  */
 
 public class LikeView extends View {
-    private static final String TAG = "VerticalScrollView";
+    private static final String TAG = "LikeView";
     private long number;
     private String preNumStr = "";
     private String postOldNumStr = "";
@@ -74,7 +74,10 @@ public class LikeView extends View {
     private Path graphPath;
     //是否开启预先处理文本宽度,即测量当前值+1/-1后文本宽度变化,取最大值
     private boolean autoMeasureMaxTextWidth;
+    //是否初始化完成
     private boolean initFinished;
+    //是否允许取消
+    private boolean notAllowedCancel;
 
     public LikeView(Context context) {
         super(context);
@@ -97,7 +100,7 @@ public class LikeView extends View {
             number = 0;
             graphColor = textColor = Color.parseColor("#888888");
             animateColor = Color.parseColor("#EE0000");
-            textSize = sp2px(13);
+            textSize = sp2px(14);
             isActivated = false;
             animateDuration = 300L;
             distance = dp2px(3);
@@ -105,6 +108,7 @@ public class LikeView extends View {
             textStrokeWidth = dp2px(2);
             graphTextHeightRatio = 1.3f;
             autoMeasureMaxTextWidth = true;
+            notAllowedCancel = false;
         } else {
             TypedArray ta = getContext().obtainStyledAttributes(attrs, R.styleable.LikeView);
             try {
@@ -112,9 +116,10 @@ public class LikeView extends View {
                 graphColor = ta.getColor(R.styleable.LikeView_graphColor, Color.parseColor("#888888"));
                 textColor = ta.getColor(R.styleable.LikeView_textColor, Color.parseColor("#888888"));
                 animateColor = ta.getColor(R.styleable.LikeView_animateColor, Color.parseColor("#EE0000"));
-                textSize = ta.getDimensionPixelSize(R.styleable.LikeView_textSize, sp2px(16));
+                textSize = ta.getDimensionPixelSize(R.styleable.LikeView_textSize, sp2px(14));
                 isActivated = ta.getBoolean(R.styleable.LikeView_isActivated, false);
                 autoMeasureMaxTextWidth = ta.getBoolean(R.styleable.LikeView_autoMeasureMaxWidth, true);
+                notAllowedCancel = ta.getBoolean(R.styleable.LikeView_notAllowedCancel, false);
                 animateDuration = ta.getInt(R.styleable.LikeView_animateDuration, 300);
                 distance = ta.getDimensionPixelSize(R.styleable.LikeView_distance, dp2px(3));
                 graphStrokeWidth = ta.getDimensionPixelSize(R.styleable.LikeView_graphStrokeWidth, dp2px(3));
@@ -150,6 +155,14 @@ public class LikeView extends View {
         initFinished = true;
     }
 
+    /**
+     * 修改数值
+     *
+     * @param number 新值
+     */
+    public void setNumber(long number) {
+        setNumber(number, false);
+    }
 
     /**
      * 修改数值
@@ -204,11 +217,11 @@ public class LikeView extends View {
      */
     public void trigger() {
         if (isActivated) {
-            add(-1);
-            deactivate();
+            if (!notAllowedCancel) {
+                deactivateAndTallyDown();
+            }
         } else {
-            add(1);
-            activate();
+            activateAndPlusOne();
         }
     }
 
@@ -245,7 +258,7 @@ public class LikeView extends View {
         int oldDefWidth = defWidth;
         defWidth = (int) (getPaddingLeft() + getPaddingRight() + defHeight + textWidth + distance);
         //如果新的默认宽度不等于原来的值,就需要请求重新布局
-        if(defWidth != oldDefWidth && initFinished){
+        if (defWidth != oldDefWidth && initFinished) {
             requestLayout();
         }
     }
@@ -283,17 +296,17 @@ public class LikeView extends View {
         //测量共同文本的宽度
         preNumWidth = textPaint.measureText(preNumStr);
         float oldTextWidth = textWidth;
-        if (autoMeasureMaxTextWidth) {
+        if (autoMeasureMaxTextWidth) {//是否自动测量变化文本宽度
             //先算出新旧字符串的最大宽度
             float width = maxTextWidth(oldNumStr, newNumStr);
             //与加一比较还是与减一比较
             int offset = isActivated ? -1 : 1;
             //再和修改后的字符比较
-            textWidth = Math.max(width,textPaint.measureText(String.valueOf(number + offset)));
+            textWidth = Math.max(width, textPaint.measureText(String.valueOf(number + offset)));
         } else {
             textWidth = maxTextWidth(oldNumStr, newNumStr);
         }
-        //如果宽度改变,并且初始化完成,则要重新测量
+        //如果宽度改变,并且初始化完成,则要重新测量默认宽高
         if (oldTextWidth != textWidth && initFinished) {
             measureDefWidthAndDefHeight();
         }
@@ -401,13 +414,19 @@ public class LikeView extends View {
     private void drawNumber(Canvas canvas) {
         canvas.save();
         canvas.translate(textStartX, textStartY);
-        if (!isNumAnimateRunning) {
+        if (!isNumAnimateRunning) { //是否正在动画中
+            //直接绘制数字
             canvas.drawText(String.valueOf(number), 0, textBaseLineHeight, textPaint);
         } else {
+            //根据方向来计算位置
             numAnimateScale *= -direction;
+            //裁剪文本框
             canvas.clipRect(0, 0, 0 + textWidth, 0 + textHeight);
+            //绘制相同文本
             canvas.drawText(preNumStr, 0, textBaseLineHeight, textPaint);
+            //绘制旧文本
             canvas.drawText(postOldNumStr, preNumWidth, textBaseLineHeight + textHeight * numAnimateScale, textPaint);
+            //绘制新文本
             canvas.drawText(postNewNumStr, preNumWidth, textBaseLineHeight + textHeight * (numAnimateScale + direction), textPaint);
         }
         canvas.restore();
@@ -423,9 +442,12 @@ public class LikeView extends View {
         float radial = (float) (graphLength * Math.sqrt(2) / 2f);
 
         if (!isGraphAnimateRunning) {//如果不是动画中,就直接绘画
-            canvas.drawPath(graphPath, graphPaint);
             if (isActivated) {
+                //绘制激活状态
                 canvas.drawCircle(graphLength / 2, graphLength / 2, radial, animatePaint);
+            } else {
+                //绘制图形
+                canvas.drawPath(graphPath, graphPaint);
             }
         } else { //是动画中就要按比例绘画
             //修改外圈图形比例
@@ -504,6 +526,12 @@ public class LikeView extends View {
         return isActivated;
     }
 
+    @Override
+    public void setActivated(boolean activated) {
+        isActivated = activated;
+        postInvalidate();
+    }
+
     public long getAnimateDuration() {
         return animateDuration;
     }
@@ -552,16 +580,33 @@ public class LikeView extends View {
     }
 
     public void setGraphAdapter(GraphAdapter graphAdapter) {
-        if(graphAdapter != null) {
+        if (graphAdapter != null) {
             this.graphAdapter = graphAdapter;
             postInvalidate();
         }
     }
 
     public void setCallback(Callback callback) {
-        if(callback != null) {
+        if (callback != null) {
             this.callback = callback;
         }
+    }
+
+    public boolean isAutoMeasureMaxTextWidth() {
+        return autoMeasureMaxTextWidth;
+    }
+
+    public void setAutoMeasureMaxTextWidth(boolean autoMeasureMaxTextWidth) {
+        this.autoMeasureMaxTextWidth = autoMeasureMaxTextWidth;
+        measureTextWidth();
+    }
+
+    public boolean isNotAllowedCancel() {
+        return notAllowedCancel;
+    }
+
+    public void setNotAllowedCancel(boolean notAllowedCancel) {
+        this.notAllowedCancel = notAllowedCancel;
     }
 
     /**

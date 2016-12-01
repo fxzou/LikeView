@@ -1,78 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
-    android:id="@+id/activity_main"
+<android.support.design.widget.CoordinatorLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="cn.izouxiang.likeviewdemo.MainActivity"
     android:background="#f5eeee"
     >
 
-    <LinearLayout
+    <android.support.v7.widget.RecyclerView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="16dp"
-        android:background="#FFFFFF"
-        >
+        android:layout_height="match_parent"
+        android:id="@+id/rcv"
+        />
 
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="50dp"
-            android:orientation="horizontal"
-            >
-            <ImageView
-                android:layout_width="50dp"
-                android:layout_height="50dp"
-                android:src="@mipmap/ic_launcher"
-                />
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:layout_marginLeft="20dp"
-                android:text="小明"
-                />
-        </LinearLayout>
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="今天贼嗨!今天贼嗨!今天贼嗨!今天贼嗨!今天贼嗨!今天贼嗨!今天贼嗨!今天贼嗨!今天贼嗨!今天贼嗨!今天贼嗨!今天贼嗨!今天贼嗨!"
-            android:layout_marginTop="50dp"
-            android:layout_marginBottom="50dp"
-            />
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="#cccccc"
-            />
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            >
-            <cn.izouxiang.likeview.LikeView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:layout_marginRight="100dp"
-                app:number="99"
-                app:graphStrokeWidth="3dp"
-                app:animateColor="#ca5f5f"
-                app:textSize="12sp"
-                app:isActivated="false"
-                app:animateDuration="300"
-                app:autoMeasureMaxWidth="true"
-                />
-            <Button
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:background="#00000000"
-                android:text="评论"
-                android:layout_gravity="center_vertical"
-                />
-        </LinearLayout>
-    </LinearLayout>
-</RelativeLayout>
+</android.support.design.widget.CoordinatorLayout>

@@ -13,5 +13,6 @@
         <attr name="textStrokeWidth" format="dimension"/>
         <attr name="isActivated" format="boolean"/>
         <attr name="autoMeasureMaxWidth" format="boolean"/>
+        <attr name="notAllowedCancel" format="boolean"/>
     </declare-styleable>
 </resources>
