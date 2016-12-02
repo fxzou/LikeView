@@ -99,7 +99,7 @@ public class LikeView extends View {
         if (null == attrs) {
             number = 0;
             graphColor = textColor = Color.parseColor("#888888");
-            animateColor = Color.parseColor("#EE0000");
+            animateColor = Color.parseColor("#ca5f5f");
             textSize = sp2px(14);
             isActivated = false;
             animateDuration = 300L;
@@ -115,7 +115,7 @@ public class LikeView extends View {
                 number = ta.getInt(R.styleable.LikeView_number, 0);
                 graphColor = ta.getColor(R.styleable.LikeView_graphColor, Color.parseColor("#888888"));
                 textColor = ta.getColor(R.styleable.LikeView_textColor, Color.parseColor("#888888"));
-                animateColor = ta.getColor(R.styleable.LikeView_animateColor, Color.parseColor("#EE0000"));
+                animateColor = ta.getColor(R.styleable.LikeView_animateColor, Color.parseColor("#ca5f5f"));
                 textSize = ta.getDimensionPixelSize(R.styleable.LikeView_textSize, sp2px(14));
                 isActivated = ta.getBoolean(R.styleable.LikeView_isActivated, false);
                 autoMeasureMaxTextWidth = ta.getBoolean(R.styleable.LikeView_autoMeasureMaxWidth, true);
