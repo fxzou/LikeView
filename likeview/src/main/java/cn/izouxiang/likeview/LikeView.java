@@ -23,6 +23,10 @@ import cn.izouxiang.likeview.util.PathUtils;
 
 public class LikeView extends View {
     private static final String TAG = "LikeView";
+    public static final int GRAVITY_CENTER = 1;
+    public static final int GRAVITY_LEFT = 2;
+    public static final int GRAVITY_RIGHT = 3;
+    public static final int GRAVITY_START = 4;
     private long number;
     private String preNumStr = "";
     private String postOldNumStr = "";
@@ -74,10 +78,9 @@ public class LikeView extends View {
     private Path graphPath;
     //是否开启预先处理文本宽度,即测量当前值+1/-1后文本宽度变化,取最大值
     private boolean autoMeasureMaxTextWidth;
-    //是否初始化完成
-    private boolean initFinished;
     //是否允许取消
     private boolean notAllowedCancel;
+    private int gravity;
 
     public LikeView(Context context) {
         super(context);
@@ -95,7 +98,6 @@ public class LikeView extends View {
     }
 
     private void init(AttributeSet attrs) {
-        initFinished = false;
         if (null == attrs) {
             number = 0;
             graphColor = textColor = Color.parseColor("#888888");
@@ -109,6 +111,7 @@ public class LikeView extends View {
             graphTextHeightRatio = 1.3f;
             autoMeasureMaxTextWidth = true;
             notAllowedCancel = false;
+            gravity = GRAVITY_CENTER;
         } else {
             TypedArray ta = getContext().obtainStyledAttributes(attrs, R.styleable.LikeView);
             try {
@@ -125,6 +128,7 @@ public class LikeView extends View {
                 graphStrokeWidth = ta.getDimensionPixelSize(R.styleable.LikeView_graphStrokeWidth, dp2px(3));
                 textStrokeWidth = ta.getDimensionPixelSize(R.styleable.LikeView_textStrokeWidth, dp2px(2));
                 graphTextHeightRatio = ta.getFloat(R.styleable.LikeView_graphTextHeightRatio, 1.3f);
+                gravity = ta.getInteger(R.styleable.LikeView_gravity,GRAVITY_CENTER);
             } finally {
                 ta.recycle();
             }
@@ -152,7 +156,6 @@ public class LikeView extends View {
                 }
             }
         });
-        initFinished = true;
     }
 
     /**
@@ -254,15 +257,22 @@ public class LikeView extends View {
      * 测量View的默认宽高
      */
     private void measureDefWidthAndDefHeight() {
+        int oldDefHeight = defHeight;
         defHeight = (int) (getPaddingBottom() + getPaddingTop() + textHeight * graphTextHeightRatio);
-        int oldDefWidth = defWidth;
         defWidth = (int) (getPaddingLeft() + getPaddingRight() + defHeight + textWidth + distance);
-        //如果新的默认宽度不等于原来的值,就需要请求重新布局
-        if (defWidth != oldDefWidth && initFinished) {
-            requestLayout();
+        if(defHeight != oldDefHeight){
+            measureGraphLength();
+            getGraphPath();
+            measureStartPoint();
         }
     }
 
+    private void measureGraphLength(){
+        graphLength = defHeight - getPaddingTop() - getPaddingBottom();
+    }
+    private void getGraphPath(){
+        graphPath = graphAdapter.getGraphPath(this, (int) graphLength);
+    }
     /**
      * 对比字符串,并测量文本宽度
      */
@@ -286,16 +296,29 @@ public class LikeView extends View {
             postOldNumStr = oldNumStr.substring(i);
             postNewNumStr = newNumStr.substring(i);
         }
-        measureTextWidth();
+        measureTextWidthChanged();
     }
-
+    private void measureTextWidthChanged(){
+        float oldTextWidth = textWidth;
+        measureTextWidth();
+        //如果宽度改变,并且初始化完成,则要重新测量默认宽高
+        if (oldTextWidth != textWidth) {
+            int oldDefWidth = defWidth;
+            int oldDefHeight = defHeight;
+            measureDefWidthAndDefHeight();
+            //如果新的默认宽高不等于原来的值,就需要请求重新布局
+            if ((defWidth != oldDefWidth || defHeight != oldDefHeight)) {
+                requestLayout();
+            }
+        }
+    }
     /**
      * 测量文本宽度
      */
     private void measureTextWidth() {
         //测量共同文本的宽度
         preNumWidth = textPaint.measureText(preNumStr);
-        float oldTextWidth = textWidth;
+
         if (autoMeasureMaxTextWidth) {//是否自动测量变化文本宽度
             //先算出新旧字符串的最大宽度
             float width = maxTextWidth(oldNumStr, newNumStr);
@@ -306,10 +329,7 @@ public class LikeView extends View {
         } else {
             textWidth = maxTextWidth(oldNumStr, newNumStr);
         }
-        //如果宽度改变,并且初始化完成,则要重新测量默认宽高
-        if (oldTextWidth != textWidth && initFinished) {
-            measureDefWidthAndDefHeight();
-        }
+
     }
 
     /**
@@ -392,12 +412,38 @@ public class LikeView extends View {
     }
 
     @Override
-    protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
-        super.onLayout(changed, left, top, right, bottom);
-        graphStartX = getPaddingLeft();
-        graphStartY = getPaddingTop();
-        graphLength = defHeight - getPaddingTop() - getPaddingBottom();
-        graphPath = graphAdapter.getGraphPath(this, (int) graphLength);
+    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+        super.onSizeChanged(w, h, oldw, oldh);
+        measureStartPoint();
+    }
+
+    private void measureStartPoint(){
+        int w = getWidth();
+        int h = getHeight();
+        //对齐显示偏移量
+        int dx;
+        int dy;
+        switch (gravity){
+            case GRAVITY_CENTER :
+                dx = (w - defWidth) / 2;
+                dy = (h - defHeight) / 2;
+                break;
+            case GRAVITY_LEFT :
+                dx = 0;
+                dy = (h - defHeight) / 2;
+                break;
+            case GRAVITY_RIGHT :
+                dx = w - defWidth;
+                dy = (h - defHeight) / 2;
+                break;
+            case GRAVITY_START :
+            default:
+                dx = 0;
+                dy = 0;
+
+        }
+        graphStartX = getPaddingLeft() + dx;
+        graphStartY = getPaddingTop() + dy;
         textStartX = graphStartX + graphLength + distance;
         textStartY = graphStartY + textHeight * (graphTextHeightRatio - 1) / 2;
     }
@@ -547,6 +593,7 @@ public class LikeView extends View {
     public void setDistance(int distance) {
         this.distance = distance;
         measureDefWidthAndDefHeight();
+        requestLayout();
     }
 
     public float getGraphTextHeightRatio() {
@@ -607,6 +654,14 @@ public class LikeView extends View {
 
     public void setNotAllowedCancel(boolean notAllowedCancel) {
         this.notAllowedCancel = notAllowedCancel;
+    }
+
+    public int getGravity() {
+        return gravity;
+    }
+
+    public void setGravity(int gravity) {
+        this.gravity = gravity;
     }
 
     /**

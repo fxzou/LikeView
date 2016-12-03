@@ -65,6 +65,7 @@
             app:number="99"
             app:textSize="14sp"
             app:notAllowedCancel="false"
+            app:gravity="left"
             />
 
         <Button

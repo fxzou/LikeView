@@ -40,6 +40,7 @@ public class SSAdapter extends RecyclerView.Adapter<SSAdapter.SSHolder> {
         final SSEntity entity = ssEntities.get(position);
         holder.likeView.setActivated(entity.isLike);
         holder.likeView.setNumber(entity.likeNum);
+        holder.likeView.setGravity(position+1);
         holder.likeView.setCallback(new LikeView.SimpleCallback() {
             @Override
             public void activate(LikeView view) {
