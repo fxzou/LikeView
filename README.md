@@ -6,7 +6,7 @@
 - 修改了已知BUG
 
 ## 先看效果图
-![](img/test.gif)
+![](img/likeview.gif)
 ## 使用方法
 ### 布局配置
 ```
