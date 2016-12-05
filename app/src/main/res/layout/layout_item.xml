@@ -49,6 +49,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
+        android:paddingTop="5dp"
         >
 
         <cn.izouxiang.likeview.LikeView
@@ -65,16 +66,15 @@
             app:number="99"
             app:textSize="14sp"
             app:notAllowedCancel="false"
-            app:gravity="left"
+            app:gravity="center"
             />
 
-        <Button
+        <cn.izouxiang.likeview.LikeView
+            android:id="@+id/comment"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
             android:layout_weight="1"
-            android:background="#00000000"
-            android:text="评论"
             />
     </LinearLayout>
 </LinearLayout>

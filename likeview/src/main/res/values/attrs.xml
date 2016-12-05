@@ -27,11 +27,15 @@
         <attr name="autoMeasureMaxWidth" format="boolean"/>
         <!--是否不允许取消点赞,默认false-->
         <attr name="notAllowedCancel" format="boolean"/>
-        <!--对齐方式-->
+        <!--对齐方式,前三种默认垂直居中-->
         <attr name="gravity" format="enum">
+            <!--居中-->
             <enum name="center" value="1"/>
+            <!--左对齐-->
             <enum name="left" value="2"/>
+            <!--右对齐-->
             <enum name="right" value="3"/>
+            <!--开始点-->
             <enum name="start" value="4"/>
         </attr>
     </declare-styleable>

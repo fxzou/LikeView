@@ -74,7 +74,7 @@ public class LikeView extends View {
     private int graphStrokeWidth;
     private int textStrokeWidth;
     private Callback callback = new SimpleCallback();
-    private GraphAdapter graphAdapter = new HeartGraphAdapter();
+    private GraphAdapter graphAdapter = HeartGraphAdapter.getInstance();
     private Path graphPath;
     //是否开启预先处理文本宽度,即测量当前值+1/-1后文本宽度变化,取最大值
     private boolean autoMeasureMaxTextWidth;
@@ -301,7 +301,7 @@ public class LikeView extends View {
     private void measureTextWidthChanged(){
         float oldTextWidth = textWidth;
         measureTextWidth();
-        //如果宽度改变,并且初始化完成,则要重新测量默认宽高
+        //如果宽度改变,则要重新测量默认宽高
         if (oldTextWidth != textWidth) {
             int oldDefWidth = defWidth;
             int oldDefHeight = defHeight;
@@ -452,6 +452,7 @@ public class LikeView extends View {
     protected void onDraw(Canvas canvas) {
         drawGraph(canvas);
         drawNumber(canvas);
+
     }
 
     /**
@@ -507,7 +508,7 @@ public class LikeView extends View {
     /**
      * 将图形缩放绘画
      *
-     * @param canvas 画笔
+     * @param canvas 画布
      * @param scale  比例
      */
     private void drawGraphPathByScale(Canvas canvas, float scale) {
@@ -629,6 +630,7 @@ public class LikeView extends View {
     public void setGraphAdapter(GraphAdapter graphAdapter) {
         if (graphAdapter != null) {
             this.graphAdapter = graphAdapter;
+            getGraphPath();
             postInvalidate();
         }
     }
@@ -743,7 +745,15 @@ public class LikeView extends View {
      * 桃心图形类
      */
     public static class HeartGraphAdapter implements GraphAdapter {
-
+        private static HeartGraphAdapter instance;
+        public static HeartGraphAdapter getInstance(){
+            synchronized (HeartGraphAdapter.class){
+                if(null == instance){
+                    instance = new HeartGraphAdapter();
+                }
+            }
+            return instance;
+        }
         @Override
         public Path getGraphPath(LikeView view, int length) {
             return PathUtils.getHeartPath(length);

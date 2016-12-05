@@ -1,6 +1,12 @@
 # 仿即刻APP点赞桃心的效果
+## 2016-12-5更新
+- 修改测量逻辑
+- 添加了对齐方式
+- 添加了一个评论图形的GraphAdapter
+- 修改了已知BUG
+
 ## 先看效果图
-![](img/likeview.gif)
+![](img/test.gif)
 ## 使用方法
 ### 布局配置
 ```
@@ -15,9 +21,10 @@
 
 ### 代码配置
 ```java
-		holder.likeView.setActivated(entity.isLike);
-        holder.likeView.setNumber(entity.likeNum);
-        holder.likeView.setCallback(new LikeView.SimpleCallback() {
+		//点赞view的设置
+		holder.like.setActivated(entity.isLike);
+        holder.like.setNumber(entity.likeNum);
+        holder.like.setCallback(new LikeView.SimpleCallback() {
             @Override
             public void activate(LikeView view) {
                 Snackbar.make(view, "你觉得" + entity.name + "很赞!", Snackbar.LENGTH_SHORT).show();
@@ -28,6 +35,53 @@
                 Snackbar.make(view, "你取消了对" + entity.name + "的赞!", Snackbar.LENGTH_SHORT).show();
             }
         });
+        //评论view的设置
+        holder.comment.setNumber(entity.commentNum);
+        //设置图形适配器
+        holder.comment.setGraphAdapter(CommentPathAdapter.getInstance());
+        holder.comment.setCallback(new LikeView.SimpleCallback(){
+            @Override
+            public boolean onClick(LikeView view) {
+                Snackbar.make(view, "你点击" + entity.name + "的评论按钮", Snackbar.LENGTH_SHORT).show();
+                //返回true代表拦截此次点击,不使用默认的点击事件
+                return true;
+            }
+        });
+```
+### 自定义图形适配器
+```java
+public class CommentPathAdapter implements LikeView.GraphAdapter {
+    private static CommentPathAdapter instance;
+    private static final float xOffsetScale = 0.06f;
+    private static final float yOffsetScale = 0.2f;
+	//可用单例模式
+    public static CommentPathAdapter getInstance() {
+        synchronized (CommentPathAdapter.class) {
+            if (null == instance) {
+                instance = new CommentPathAdapter();
+            }
+        }
+        return instance;
+    }
+	//这里绘制你想要的图形
+    @Override
+    public Path getGraphPath(LikeView view, int length) {
+        Path path = new Path();
+        int dx = (int) (length * xOffsetScale);
+        int dy = (int) (length * yOffsetScale);
+        int w = (int) (length * (1 - xOffsetScale * 2));
+        int h = (int) (length * (1 - yOffsetScale * 2));
+        path.moveTo(dx, dy);
+        path.lineTo(dx + w, dy);
+        path.lineTo(dx + w, dy + h);
+        path.lineTo(dx + (w * 0.35f), dy + h);
+        path.lineTo(dx + (w * 0.1f), dy + (h * 1.4f));
+        path.lineTo(dx + (w * 0.1f), dy + h);
+        path.lineTo(dx, dy + h);
+        path.lineTo(dx, dy);
+        return path;
+    }
+}
 ```
 ## 自定义配置
 ```
@@ -59,6 +113,17 @@
         <attr name="autoMeasureMaxWidth" format="boolean"/>
         <!--是否不允许取消点赞,默认false-->
         <attr name="notAllowedCancel" format="boolean"/>
+        <!--对齐方式,前三种默认垂直居中-->
+        <attr name="gravity" format="enum">
+            <!--居中-->
+            <enum name="center" value="1"/>
+            <!--左对齐-->
+            <enum name="left" value="2"/>
+            <!--右对齐-->
+            <enum name="right" value="3"/>
+            <!--开始点-->
+            <enum name="start" value="4"/>
+        </attr>
     </declare-styleable>
 </resources>
 ```

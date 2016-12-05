@@ -23,9 +23,11 @@ public class MainActivity extends AppCompatActivity {
     }
     private void initData(){
         ssEntities = new ArrayList<>();
-        ssEntities.add(new SSEntity("小明",true,100));
-        ssEntities.add(new SSEntity("小红",false,99));
-        ssEntities.add(new SSEntity("小强",true,102));
-        ssEntities.add(new SSEntity("小黑",false,103));
+        ssEntities.add(new SSEntity("小明",true,100,1));
+        ssEntities.add(new SSEntity("小红",false,99,0));
+        ssEntities.add(new SSEntity("小强",true,102,20));
+        ssEntities.add(new SSEntity("小黑",false,103,10));
+        ssEntities.add(new SSEntity("小白",false,109,5));
+        ssEntities.add(new SSEntity("小黑",true,110,2));
     }
 }
