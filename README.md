@@ -173,7 +173,7 @@ public class CommentPathAdapter implements LikeView.GraphAdapter {
 ```
 ## 声明
 此项目为练手项目,当中可能存在BUG,发现BUG请指出,谢谢
-#License
+# License
 ```
 Copyright 2016 zFxiang
 
