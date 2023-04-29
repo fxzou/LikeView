@@ -24,5 +24,7 @@ jobs:
           git config --local user.name "fxzou"
           git remote set-url origin https://${{ github.actor }}:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
           git pull --rebase
-          git commit --allow-empty -m "fix issue"
+          echo "// 添加备注 $(time())" >> likeview/src/main/java/cn/izouxiang/likeview/CommentPathAdapter.java
+          git add likeview/src/main/java/cn/izouxiang/likeview/CommentPathAdapter.java
+          git commit --allow-empty -m "添加备注"
           git push
